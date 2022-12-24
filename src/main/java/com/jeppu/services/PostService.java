@@ -1,5 +1,6 @@
 package com.jeppu.services;
 
+import com.jeppu.payloads.PageResponse;
 import com.jeppu.payloads.PostDTO;
 
 import java.util.List;
@@ -10,7 +11,7 @@ public interface PostService {
     PostDTO updatePost(PostDTO postDTO, Long postId);
     void deletePost(Long postId);
     PostDTO getPostById(Long postId);
-    List<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
-    List<PostDTO> getAllPostsByUser(Long userId);
-    List<PostDTO> getAllPostsByCategory(Long categoryId);
+    PageResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
+    PageResponse getAllPostsByUser(Long userId, Integer pageNumber, Integer pageSize);
+    PageResponse getAllPostsByCategory(Long categoryId, Integer pageNumber, Integer pageSize);
 }

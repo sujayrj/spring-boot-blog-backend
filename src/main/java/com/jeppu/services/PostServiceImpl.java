@@ -5,6 +5,7 @@ import com.jeppu.entities.Post;
 import com.jeppu.entities.User;
 import com.jeppu.exceptions.ResourceNotFoundException;
 import com.jeppu.payloads.CategoryDTO;
+import com.jeppu.payloads.PageResponse;
 import com.jeppu.payloads.PostDTO;
 import com.jeppu.payloads.UserDTO;
 import com.jeppu.repositories.CategoryRepo;
@@ -12,6 +13,7 @@ import com.jeppu.repositories.PostRepo;
 import com.jeppu.repositories.UserRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -88,27 +90,59 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDTO> getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+    public PageResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
         Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
 
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
-        List<Post> allPosts = this.postRepo.findAll(pageable).getContent();
+        Page<Post> pagePost = this.postRepo.findAll(pageable);
+        List<Post> allPosts = pagePost.getContent();
         List<PostDTO> allPostDTOs = convertPostListToPostDTOList(allPosts);
-        return allPostDTOs;
+        PageResponse pageResponse = PageResponse.builder()
+                .allPosts(allPostDTOs)
+                .pageNumber(pagePost.getNumber())
+                .pageSize(pagePost.getSize())
+                .totalElements(pagePost.getTotalElements())
+                .totalPages(pagePost.getTotalPages())
+                .isLastPage(pagePost.isLast())
+                .build();
+        return pageResponse;
     }
 
 
-    public List<PostDTO> getAllPostsByCategory(Long categoryId) {
+    @Override
+    public PageResponse getAllPostsByCategory(Long categoryId, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", categoryId));
-        List<Post> allPostsByCategory = this.postRepo.findByCategory(category);
-        return convertPostListToPostDTOList(allPostsByCategory);
+        Page<Post> pagePost = this.postRepo.findByCategory(category, pageable);
+        List<Post> allPosts = pagePost.getContent();
+        List<PostDTO> postDTOS = convertPostListToPostDTOList(allPosts);
+        PageResponse pageResponse = PageResponse.builder()
+                .allPosts(postDTOS)
+                .pageNumber(pagePost.getNumber())
+                .pageSize(pagePost.getSize())
+                .totalElements(pagePost.getTotalElements())
+                .totalPages(pagePost.getTotalPages())
+                .isLastPage(pagePost.isLast())
+                .build();
+        return pageResponse;
     }
 
-    public List<PostDTO> getAllPostsByUser(Long userId) {
+    @Override
+    public PageResponse getAllPostsByUser(Long userId, Integer pageNumber, Integer pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
         User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-        List<Post> allPostsByUser = this.postRepo.findByUser(user);
-        return convertPostListToPostDTOList(allPostsByUser);
+        Page<Post> pagePost = this.postRepo.findByUser(user, pageable);
+        List<Post> allPostsList = pagePost.getContent();
+        List<PostDTO> allPostDTOs = convertPostListToPostDTOList(allPostsList);
+        PageResponse pageResponse = PageResponse.builder()
+                .allPosts(allPostDTOs)
+                .pageNumber(pagePost.getNumber())
+                .pageSize(pagePost.getSize())
+                .totalElements(pagePost.getTotalElements())
+                .totalPages(pagePost.getTotalPages())
+                .isLastPage(pagePost.isLast())
+                .build();
+        return pageResponse;
     }
 
     private PostDTO convertPostToPostDTO(Post post) {
