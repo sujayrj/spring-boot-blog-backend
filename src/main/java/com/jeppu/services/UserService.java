@@ -1,6 +1,5 @@
-package com.jeppu.servies;
+package com.jeppu.services;
 
-import com.jeppu.entities.User;
 import com.jeppu.payloads.UserDTO;
 
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.jeppu.servies;
+package com.jeppu.services;
 
 import com.jeppu.entities.User;
 import com.jeppu.exceptions.ResourceNotFoundException;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {

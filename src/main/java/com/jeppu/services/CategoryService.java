@@ -1,4 +1,4 @@
-package com.jeppu.servies;
+package com.jeppu.services;
 
 import com.jeppu.payloads.CategoryDTO;
 import java.util.List;

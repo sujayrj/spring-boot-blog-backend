@@ -2,7 +2,7 @@ package com.jeppu.controllers;
 
 import com.jeppu.payloads.ApiResponse;
 import com.jeppu.payloads.CategoryDTO;
-import com.jeppu.servies.CategoryService;
+import com.jeppu.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
