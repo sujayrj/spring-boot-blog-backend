@@ -145,6 +145,14 @@ public class PostServiceImpl implements PostService {
         return pageResponse;
     }
 
+    @Override
+    public List<PostDTO> getPostsContainingTitle(String keyword) {
+        //List<Post> allPosts = this.postRepo.findByTitleContaining(keyword);
+        List<Post> allPosts = this.postRepo.searchPostsContainingTitle("%" + keyword + "%");
+        List<PostDTO> allPostDTOs = convertPostListToPostDTOList(allPosts);
+        return allPostDTOs;
+    }
+
     private PostDTO convertPostToPostDTO(Post post) {
         UserDTO postUserDTO = this.modelMapper.map(post.getUser(), UserDTO.class);
         CategoryDTO postCategoryDTO = this.modelMapper.map(post.getCategory(), CategoryDTO.class);

@@ -14,4 +14,6 @@ public interface PostService {
     PageResponse getAllPosts(Integer pageNumber, Integer pageSize, String sortBy, String sortDir);
     PageResponse getAllPostsByUser(Long userId, Integer pageNumber, Integer pageSize);
     PageResponse getAllPostsByCategory(Long categoryId, Integer pageNumber, Integer pageSize);
+
+    List<PostDTO> getPostsContainingTitle(String keyword);
 }

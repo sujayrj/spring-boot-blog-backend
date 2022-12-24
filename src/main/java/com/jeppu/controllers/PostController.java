@@ -1,5 +1,6 @@
 package com.jeppu.controllers;
 
+import com.jeppu.config.AppConstants;
 import com.jeppu.payloads.PageResponse;
 import com.jeppu.payloads.PostDTO;
 import com.jeppu.services.PostService;
@@ -49,10 +50,10 @@ public class PostController {
     //get all posts
     @GetMapping("/posts")
     public ResponseEntity<PageResponse> getAllPosts(
-            @RequestParam(value = "pageNumber", defaultValue = "0", required = false) Integer pageNumber,
-            @RequestParam(value = "pageSize", defaultValue = "2", required = false) Integer pageSize,
-            @RequestParam(value = "sortBy", defaultValue = "postId", required = false) String sortBy,
-            @RequestParam(value = "sortDir", defaultValue = "asc", required = false) String sortDir) {
+            @RequestParam(value = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(value = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(value = "sortBy", defaultValue = AppConstants.SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = AppConstants.SORT_DIR, required = false) String sortDir) {
         PageResponse pageResponse = this.postService.getAllPosts(pageNumber, pageSize, sortBy, sortDir);
         return new ResponseEntity<>(pageResponse, HttpStatus.OK);
     }
@@ -75,5 +76,13 @@ public class PostController {
         PostDTO postDTO1 = this.postService.updatePost(postDTO, postId);
         return new ResponseEntity<>(postDTO1, HttpStatus.CREATED);
     }
+
+    //search by containing title
+    @GetMapping("/posts/title/{keyword}")
+    public ResponseEntity<List<PostDTO>> getPostsContainingTitle(@PathVariable("keyword") String keyword){
+        List<PostDTO> postDTOS = this.postService.getPostsContainingTitle(keyword);
+        return ResponseEntity.ok(postDTOS);
+    }
+
 
 }

@@ -3,6 +3,7 @@ package com.jeppu.services;
 import com.jeppu.exceptions.ResourceNotFoundException;
 import com.jeppu.payloads.CategoryDTO;
 import com.jeppu.entities.Category;
+import com.jeppu.payloads.PostDTO;
 import com.jeppu.repositories.CategoryRepo;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
