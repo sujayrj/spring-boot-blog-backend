@@ -3,12 +3,22 @@ package com.jeppu.controllers;
 import com.jeppu.config.AppConstants;
 import com.jeppu.payloads.PageResponse;
 import com.jeppu.payloads.PostDTO;
+import com.jeppu.services.FileService;
 import com.jeppu.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +28,12 @@ import java.util.Map;
 public class PostController {
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Value("${project.images}")
+    private String path;
 
     @PostMapping("/users/{userId}/categories/{categoryId}/posts")
     public ResponseEntity<PostDTO> createPost(@RequestBody PostDTO postDTO, @PathVariable Long userId, @PathVariable Long categoryId) {
@@ -58,6 +74,39 @@ public class PostController {
         return new ResponseEntity<>(pageResponse, HttpStatus.OK);
     }
 
+    //post an image
+    @PostMapping("/posts/image/upload/{postId}")
+    public ResponseEntity<?> uploadPostImage(
+            @RequestParam("image") MultipartFile imageMultipartFile,
+            @PathVariable("postId") Long postId
+    ) {
+        String imageFileName = "";
+        PostDTO postDTO = null;
+        try {
+            postDTO = this.postService.getPostById(postId);
+            imageFileName = this.fileService.uploadImage(path, imageMultipartFile);
+            postDTO.setImageName(imageFileName);
+            this.postService.updatePost(postDTO, postId);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return new ResponseEntity<>(Map.of("Image was NOT uploaded", ioException.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(postDTO, HttpStatus.OK);
+    }
+
+    //serve images
+    @GetMapping(value = "/posts/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void downloadImage(@PathVariable("imageName") String imageName, HttpServletResponse response) {
+        InputStream resource = null;
+        try {
+            resource = this.fileService.getResource(path, imageName);
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+            StreamUtils.copy(resource, response.getOutputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     //get post by id
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostDTO> getAllPost(@PathVariable("postId") Long postId) {
@@ -79,7 +128,7 @@ public class PostController {
 
     //search by containing title
     @GetMapping("/posts/title/{keyword}")
-    public ResponseEntity<List<PostDTO>> getPostsContainingTitle(@PathVariable("keyword") String keyword){
+    public ResponseEntity<List<PostDTO>> getPostsContainingTitle(@PathVariable("keyword") String keyword) {
         List<PostDTO> postDTOS = this.postService.getPostsContainingTitle(keyword);
         return ResponseEntity.ok(postDTOS);
     }
