@@ -1,5 +1,6 @@
 package com.jeppu.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,5 +25,8 @@ public class User {
     private String password;
     private String about;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Post> postList = new ArrayList<>();
+    private List<Post> posts = new ArrayList<>();
+
+    //@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    //private List<Comment> commentList = new ArrayList<>();
 }

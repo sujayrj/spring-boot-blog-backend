@@ -1,13 +1,11 @@
 package com.jeppu.services;
 
 import com.jeppu.entities.Category;
+import com.jeppu.entities.Comment;
 import com.jeppu.entities.Post;
 import com.jeppu.entities.User;
 import com.jeppu.exceptions.ResourceNotFoundException;
-import com.jeppu.payloads.CategoryDTO;
-import com.jeppu.payloads.PageResponse;
-import com.jeppu.payloads.PostDTO;
-import com.jeppu.payloads.UserDTO;
+import com.jeppu.payloads.*;
 import com.jeppu.repositories.CategoryRepo;
 import com.jeppu.repositories.PostRepo;
 import com.jeppu.repositories.UserRepo;
@@ -159,6 +157,14 @@ public class PostServiceImpl implements PostService {
         PostDTO postDTO = this.modelMapper.map(post, PostDTO.class);
         postDTO.setUserDTO(postUserDTO);
         postDTO.setCategoryDTO(postCategoryDTO);
+        List<CommentDTO> commentDTOS = post.getComments().stream().map(comment -> {
+            CommentDTO commentDTO = new CommentDTO();
+            commentDTO.setId(comment.getId());
+            commentDTO.setContent(comment.getContent());
+            commentDTO.setPostDTO(this.modelMapper.map(comment.getPost(), PostDTO.class));
+            return commentDTO;
+        }).collect(Collectors.toList());
+        postDTO.setCommentDTOS(commentDTOS);
         return postDTO;
     }
 
