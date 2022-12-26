@@ -40,8 +40,8 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDTO createPost(PostDTO postDTO, Long userId, Long categoryId) {
         //retrieve User and Category from User/Category tables using repository via their respective Ids
-        User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
-        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", categoryId));
+        User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", String.valueOf(userId)));
+        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", String.valueOf(categoryId)));
         //convert postDTO to Post entity to save in DB
         Post post = this.modelMapper.map(postDTO, Post.class);
         //set default values attributes
@@ -61,8 +61,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDTO updatePost(PostDTO postDTO, Long postId) {
-        Post postFromDB = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", postId));
-        Category category = this.categoryRepo.findById(postFromDB.getCategory().getId()).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", postFromDB.getCategory().getId()));
+        Post postFromDB = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)));
+        Category category = this.categoryRepo.findById(postFromDB.getCategory().getId()).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", String.valueOf(postFromDB.getCategory().getId())));
         postFromDB.setTitle(postDTO.getTitle());
         postFromDB.setContent(postDTO.getContent());
         postFromDB.setImageName(postDTO.getImageName());
@@ -77,13 +77,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void deletePost(Long postId) {
-        Post postFromDB = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", postId));
+        Post postFromDB = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)));
         this.postRepo.delete(postFromDB);
     }
 
     @Override
     public PostDTO getPostById(Long postId) {
-        Post post = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", postId));
+        Post post = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "Id", String.valueOf(postId)));
         return convertPostToPostDTO(post);
     }
 
@@ -110,7 +110,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResponse getAllPostsByCategory(Long categoryId, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", categoryId));
+        Category category = this.categoryRepo.findById(categoryId).orElseThrow(() -> new ResourceNotFoundException("Category", "Id", String.valueOf(categoryId)));
         Page<Post> pagePost = this.postRepo.findByCategory(category, pageable);
         List<Post> allPosts = pagePost.getContent();
         List<PostDTO> postDTOS = convertPostListToPostDTOList(allPosts);
@@ -128,7 +128,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PageResponse getAllPostsByUser(Long userId, Integer pageNumber, Integer pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+        User user = this.userRepo.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User", "Id", String.valueOf(userId)));
         Page<Post> pagePost = this.postRepo.findByUser(user, pageable);
         List<Post> allPostsList = pagePost.getContent();
         List<PostDTO> allPostDTOs = convertPostListToPostDTOList(allPostsList);
